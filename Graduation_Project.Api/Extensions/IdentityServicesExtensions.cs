@@ -25,6 +25,7 @@ namespace Graduation_Project.Api.Extensions
                 //options.Password.RequireNonAlphanumeric = true;
                 //options.Password.RequireUppercase = true;
                 //options.Password.RequireLowercase = true;
+                options.SignIn.RequireConfirmedEmail = true;
 
             }).AddEntityFrameworkStores<AppIdentityDbContext>();
 
