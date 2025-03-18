@@ -66,9 +66,6 @@ namespace Graduation_Project.Api.Controllers
             if (user is null)
                 return Unauthorized(new ApiResponse(StatusCodes.Status401Unauthorized, "Invalid Email"));
 
-            if (await _userManager.IsEmailConfirmedAsync(user))
-                return Unauthorized(new ApiResponse(StatusCodes.Status401Unauthorized, "Please confirm your email first."));
-
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
             if (!result.Succeeded)
@@ -154,15 +151,10 @@ namespace Graduation_Project.Api.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                return Ok(new { message = $"Please confirm your email with the code that you have received : {code}" });
-            }
-            else
-            {
+
+            if (!result.Succeeded)
                 return BadRequest(new ApiResponse(400, "Failed to create user."));
-            }
+
 
             await _userManager.AddToRoleAsync(user, UserRoleType.Doctor.ToString());
 
@@ -233,22 +225,22 @@ namespace Graduation_Project.Api.Controllers
             });
         }
 
-        [HttpPost("EmailVerification")]
-        public async Task<IActionResult> EmailVerification(string? email, string? code)
-        {
-            if (email == null || code == null)
-                return BadRequest(new ApiResponse(400, "Invalid payload"));
+        //[HttpPost("EmailVerification")]
+        //public async Task<IActionResult> EmailVerification(string? email, string? code)
+        //{
+        //    if (email == null || code == null)
+        //        return BadRequest(new ApiResponse(400, "Invalid payload"));
 
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-                return BadRequest(new ApiResponse(400, "Invalid payload"));
+        //    var user = await _userManager.FindByEmailAsync(email);
+        //    if (user == null)
+        //        return BadRequest(new ApiResponse(400, "Invalid payload"));
 
-            var isVerified = await _userManager.ConfirmEmailAsync(user, code);
-            if (isVerified.Succeeded)
-                return Ok(new ApiResponse(200, "Email confirmed"));
+        //    var isVerified = await _userManager.ConfirmEmailAsync(user, code);
+        //    if (isVerified.Succeeded)
+        //        return Ok(new ApiResponse(200, "Email confirmed"));
 
-            return BadRequest(new ApiResponse(400, "Invalid code"));
-        }
+        //    return BadRequest(new ApiResponse(400, "Invalid code"));
+        //}
 
         [HttpPost("PatientRegister")] // post: api/account/PatientRegister
         public async Task<ActionResult<UserDTO>> PatientRegister(PatientRegisterDTO model)
