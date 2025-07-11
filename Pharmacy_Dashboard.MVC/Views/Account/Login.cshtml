@@ -38,13 +38,13 @@
 
             <div class="input-group">
                 <label>Email</label>
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control" placeholder="example@example.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <div class="input-group">
                 <label>Password</label>
-                <input asp-for="Password" type="password" class="form-control" />
+                <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
@@ -230,6 +230,23 @@
 .custom-alert-close:hover {
     opacity: 1;
 }
+
+
+input::placeholder,
+textarea::placeholder {
+    color: #6c757d; 
+    font-size: 0.95rem; 
+    font-style: italic; 
+    opacity: 0.85; 
+    transition: color 0.3s;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    color: #bbb; 
+}
+
+
 
 </style>
 

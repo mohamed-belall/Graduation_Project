@@ -233,7 +233,7 @@ a {
   text-decoration: underline;
 }
 a:hover {
-  color: #0a58ca;
+  color: red;
 }
 
 a:not([href]):not([class]), a:not([href]):not([class]):hover {
@@ -3880,6 +3880,10 @@ textarea.form-control-lg {
   text-decoration: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
+.nav-item:hover , .nav-link:focus /***********************************/
+{
+    background-color:purple;
+}
 @media (prefers-reduced-motion: reduce) {
   .nav-link {
     transition: none;
@@ -4382,6 +4386,7 @@ textarea.form-control-lg {
 }
 .navbar-light .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:focus {
   color: rgba(0, 0, 0, 0.7);
+  background-color:navy;     /*******************************/
 }
 .navbar-light .navbar-nav .nav-link.disabled {
   color: rgba(0, 0, 0, 0.3);

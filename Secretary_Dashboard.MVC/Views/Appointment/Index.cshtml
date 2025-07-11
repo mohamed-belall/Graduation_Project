@@ -1,0 +1,114 @@
+﻿@using Graduation_Project.Core.Models.Doctors
+<link href="~/css/Apointment.css" rel="stylesheet" />
+@model IReadOnlyList<Appointment>
+
+
+
+@* <div class="card-header  d-flex justify-content-between align-items-center flex-wrap" style="margin-top:30px">
+    <h3 class="mt-5">
+        Appointments on @(((DateTime)ViewBag.SelectedDate).ToString("yyyy-MM-dd"))
+    </h3>
+
+    <form method="get" class="d-flex mt-5 " style="max-width: 350px;">
+        <input type="date" name="date" class="form-control me-2" value="@(((DateTime)ViewBag.SelectedDate).ToString("yyyy-MM-dd"))" />
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+</div> *@
+
+
+<!-- ✅ Header Row with Full Width Background -->
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-4 px-4 py-3 mt-5" style="background-color: #eaf7fc; border-bottom: 1px solid #b0d7db;">
+
+    <!-- 🩵 Title -->
+    <h3 class="fw-bold mb-0" style="color: #186A83;">
+        Appointments on @(((DateTime)ViewBag.SelectedDate).ToString("yyyy-MM-dd"))
+    </h3>
+
+    <!-- 🎯 Filter Form -->
+    <form method="get" class="d-flex align-items-center gap-2 flex-nowrap bg-white p-2 rounded shadow-sm"
+          style="border: 1px solid #b0d7db;">
+
+        <!-- 📅 Date -->
+        <input type="date"
+               name="date"
+               class="form-control form-control-sm border-0 shadow-sm"
+               style="min-width: 160px;"
+               @* value="@ViewBag.FilterDate?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString(" yyyy-MM-dd")" /> *@
+               value="@(((DateTime)ViewBag.SelectedDate).ToString("yyyy-MM-dd"))" />
+
+        <!-- 🔎 Filter Button -->
+        <button type="submit"
+                class="btn btn-sm text-white px-4"
+                style="background-color: #186A83; border: none;">
+            Filter
+        </button>
+    </form>
+</div>
+
+
+
+
+<!-- ✅ Table -->
+<div class="table-responsive">
+    <table class="table  table-hover table-bordered text-center align-middle shadow-sm" style="background-color: #ffffff;">
+        <thead style="background-color: #186A83; color: white;">
+            <tr>
+                <th>ID</th>
+                <th>Patient Name</th>
+                <th>Phone</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody style="background-color: #f9f9f9;">
+
+            @if (Model != null && Model.Any())
+            {
+
+                foreach (var appointment in Model)
+                {
+                    var status = Enum.GetName(typeof(AppointmentStatus), appointment.Status);
+                    var badgeClass = appointment.Status switch
+                    {
+                        AppointmentStatus.Confirmed => "bg-success",
+                        AppointmentStatus.Completed => "bg-secondary",
+
+                        _ => "bg-warning"
+                    };
+
+
+                    <tr>
+                        <td>@appointment.Id</td>
+                        <td>@appointment.Patient.FirstName @appointment.Patient.LastName</td>
+                        <td>@appointment.Patient.PhoneNumber</td>
+                        <td>@appointment.AppointmentTime.ToString("hh:mm tt")</td>
+                        <td><span class="badge text-white @badgeClass">@status</span></td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <form asp-action="MarkAsCompleted" method="post">
+                                    <input type="hidden" name="id" value="@appointment.Id" />
+                                    <button type="submit" class="btn btn-success btn-sm">Complete</button>
+                                </form>
+                                <form asp-action="CancelAppointment" method="post">
+                                    <input type="hidden" name="id" value="@appointment.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                }
+            }
+
+            else
+            {
+                <tr>
+                    <td colspan="6">No Appointments Found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<!-- End Table  -->
+

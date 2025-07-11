@@ -12,6 +12,8 @@ namespace Graduation_Project.Api.DTO.Account
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]
+        [RegularExpression("^(?!\\d)[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        ErrorMessage = "Email must not start with a number and must have at least 3 characters before '@'")]
         public string Email { get; set; }
 
         [Required]

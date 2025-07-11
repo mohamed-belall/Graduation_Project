@@ -4,6 +4,7 @@ using Graduation_Project.Api.ErrorHandling;
 using Graduation_Project.Core.IRepositories;
 using Graduation_Project.Core.Models.Clinics;
 using Graduation_Project.Core.Specifications.ClinicsSpecifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

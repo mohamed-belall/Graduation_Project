@@ -22,7 +22,7 @@ namespace Graduation_Project.Api.Helpers
             var pictureUrl = source.Doctor.PictureUrl;
 
             if (!string.IsNullOrEmpty(pictureUrl))
-                return pictureUrl[0] == '/' ? $"{_configuration["ServerUrl"]}{pictureUrl}" : $"{_configuration["ServerUrl"]}/{pictureUrl}";
+                return pictureUrl[0] == '/' ? $"{_configuration["AzureStorageUrl"]}{pictureUrl}" : $"{_configuration["AzureStorageUrl"]}/{pictureUrl}";
 
             return string.Empty;
         }

@@ -31,7 +31,7 @@ namespace Graduation_Project.Api.Extensions
 
             /****************************** notification Services ********************************/
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IFileUploadService, FileUploadService>();
+            services.AddScoped<IFileUploadService, AzureFileUploadService>();
 
             /****************************** Pharmacy Services ********************************/
             services.AddScoped<IPharmacyService, PharmacyService>();

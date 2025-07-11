@@ -11,7 +11,7 @@ namespace Graduation_Project.Api.DTO.Doctors
 
         public decimal ConsultationFees { get; set; }
 
-        public string? Speciality { get; set; }
+        public string? Specialty { get; set; }
 
         public double? Rating { get; set; }
 

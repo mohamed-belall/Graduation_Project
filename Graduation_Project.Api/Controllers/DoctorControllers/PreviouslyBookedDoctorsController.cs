@@ -33,8 +33,11 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
 
         [Authorize(Roles = nameof(UserRoleType.Patient))]
         [HttpGet]
-        public async Task<ActionResult<Pagination<SortingDoctorDto>>> getPreviouslyBookedDoctorsForCurrentPatient([FromQuery] FavrouiteDoctorSpecParams favrouiteDoctorSpecParams)
+        public async Task<ActionResult<Pagination<SortingDoctorDto>>> getPreviouslyBookedDoctorsForCurrentPatient([FromQuery] FavrouiteDoctorSpecParams favrouiteDoctorSpecParams ,[FromQuery] string? lang = "en")
         {
+            if(lang.ToLower() != "ar" && lang.ToLower() != "en")
+                return BadRequest(new ApiResponse(StatusCodes.Status400BadRequest, "Language Not Supported"));
+
             // 1. get current patientId
             var patientId = int.Parse(User.FindFirstValue(Identifiers.PatientId));
 
@@ -63,7 +66,11 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
 
 
             var data = _mapper.Map<IReadOnlyList<Doctor>, IReadOnlyList<SortingDoctorDto>>(bookedDoctors, opts =>
-               opts.Items["AvailabilityFilter"] = null);
+            {
+                opts.Items["lang"] = lang ?? "en";
+                opts.Items["AvailabilityFilter"] = null;
+            });
+
             return Ok(new Pagination<SortingDoctorDto>(favrouiteDoctorSpecParams.PageIndex, favrouiteDoctorSpecParams.PageSize, count, data));
 
         }

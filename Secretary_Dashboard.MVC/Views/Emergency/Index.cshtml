@@ -1,0 +1,19 @@
+﻿<div class="card border-danger p-4 mt-5">
+    <h4 class="text-danger fw-bold mb-3  ">🚨 Emergency Broadcast</h4>
+
+    <form method="post" asp-action="SendEmergencyNotice">
+        <div class="mb-3">
+            <label for="message" class="form-label">Emergency Message</label>
+            <textarea id="message" name="message" class="form-control" rows="4" placeholder="e.g. Due to an emergency, please remain seated and wait for further instructions."></textarea>
+        </div>
+        <div>
+            <input type="radio" name="recipientGroup" value="Today's Patients" /> <label>Today's Patients</label>
+        </div>
+        <div class="mt-2">
+            <input type="radio" name="recipientGroup" value="All Patients" /> <label>All Patients</label>
+        </div>
+
+
+        <button type="submit" class="btn btn-danger mt-2 ">Send</button>
+    </form>
+</div>

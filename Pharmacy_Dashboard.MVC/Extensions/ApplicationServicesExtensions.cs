@@ -32,7 +32,7 @@ namespace Pharmacy_Dashboard.MVC.Extensions
             services.AddScoped(typeof(IEmailService), typeof(EmailService));
             //services.AddScoped(typeof(INotificationService), typeof(NotificationService));
 
-            services.AddScoped(typeof(IFileUploadService), typeof(FileUploadService));
+            services.AddScoped(typeof(IFileUploadService), typeof(AzureFileUploadService));
 
             services.AddScoped<INotificationService,NotificationService>();
 

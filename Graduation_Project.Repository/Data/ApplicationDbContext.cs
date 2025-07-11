@@ -38,7 +38,7 @@
         public DbSet<Clinic> clinics { get; set; }
 
         public DbSet<ClinicPictures> clinicPictures { get; set; }
-        public DbSet<ClincSecretary> clincSecretaries { get; set; }
+        //public DbSet<ClincSecretary> clincSecretaries { get; set; }
         public DbSet<ContactNumber> contactNumbers { get; set; }
         public DbSet<Secretary> secretaries { get; set; }
         public DbSet<TherapySession> therapySessions { get; set; }

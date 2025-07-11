@@ -134,7 +134,7 @@ namespace Graduation_Project.Service
 
         public string getRelativePath(string absolutePath)
         {
-            string baseUrl = _configuration["ServerUrl"]!;
+            string baseUrl = _configuration["AzureStorageUrl"]!;
             absolutePath = absolutePath.Replace(baseUrl, "");
 
             return absolutePath;

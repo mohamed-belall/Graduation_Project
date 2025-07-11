@@ -1,8 +1,209 @@
-﻿@{
+﻿@using Graduation_Project.Core.Models.Doctors
+@using Graduation_Project.Core.Models.Patients
+@model IReadOnlyList<Appointment>
+@{
     ViewData["Title"] = "Secretary Dashboard";
+
+    // var PreviousAppointments = ViewData["PreviousAppointments"] as List<Appointment> ;
+    
+
+    var AllTodayAppointments = ViewData["AllTodayappointments"] as IReadOnlyList<Appointment>; // For Table
+
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome Secretary Dashboard</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<!-- ------------- QUEUE ------------- -->
+
+@{
+
+    var i = 0; // Starts at 0 each time
+    var isEnterClicked = Context.Request.Query["action"] == "enter";
+
+    if (isEnterClicked)
+    {
+        i++; // Increase i if button clicked
+    }
+}
+
+
+<section class="container my-5">
+
+    <div class="row text-center g-0  queue-wrapper ">
+ 
+          <!------------------------ Current ------------------------------->
+        <div class="col-12 col-md-4 queue-col cBackground ">
+            <h5 class="queue-title cQueue">Current</h5>
+            @{
+                // @if (i > 0 && Model is not null  )
+                @if (Model != null && i > 0 && i - 1 < Model.Count())
+                {
+                    <div class="Content mt-4">
+                        <p class="mb-1 fw-semibold">@Model[i - 1].Patient.FirstName @Model[i - 1].Patient.LastName</p>
+                        <p>@Model[i - 1].Patient.PhoneNumber</p>
+                    </div>
+                }
+                else
+                {
+                    <br />
+                    <div class="Content mt-4">
+                        <p class="text-muted">Room Is Empty</p>
+                        <p></p>
+                    </div>
+                   
+                }
+            }            
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+               @*  @if (i > 0 && Model is not null) *@
+                @if (Model != null && i > 0 && i - 1 < Model.Count())
+                {
+
+@*                     <div class="widget-26-job-category indicator-wrap bg-soft-danger">
+                        <i class="indicator bg-danger"></i>
+                        <span>Exit</span>
+                    </div> *@
+                    <form class="tag-badge bg-soft-info" method="post" asp-controller="Home" asp-action="Exit">
+                        <input type="hidden" name="id" value="@Model[i - 1].Id" />
+                        <p></p>
+                        <br />
+                        <span class="dot dot-blue "></span>
+                        <button type="submit" class="Exit btn bg-soft-danger" style="color:black;">Exit</button>
+                    </form>
+                }
+            </div>
+
+        </div>
+
+        <!----------------------------- Next----------------------------------->
+        <div class="col-12 col-md-4 queue-col cBackground ">
+            <h5 class="queue-title cQueue">Next</h5>
+            @{
+                /* @if (i >= 0 && i <= Model.Count()) */ // model is a filtered list contain only not confirmed appointments
+                @if (Model != null && i >= 0 && i < Model.Count())
+                {
+                    <div class="Content mt-4">
+                        <p class="mb-1 fw-semibold">@Model[i].Patient.FirstName @Model[i].Patient.LastName</p>
+                        <p>@Model[i].Patient.PhoneNumber</p>
+                    </div>
+                }
+                else
+                {
+                    <br />
+                    <div class="Content mt-4">
+                        <p class="text-muted">No Patients</p>
+                        <p></p>
+                    </div>
+                }
+
+            }
+            <br />
+
+            <div class="d-flex  justify-content-center gap-1 mt-3 ">
+
+                <form class="tag-badge bg-soft-info" method="get">
+                    <span class="dot dot-blue "></span>
+                    <button type="submit" name="action" value="enter" class="btn " style="color:black;">Enter</button>
+                </form>
+                <div class="tag-badge bg-soft-success">
+                    <span class="dot dot-green "></span>
+                    <button class="btn  btn-sm tag-badge ">Send Notification</button>
+                </div>
+                
+                @* <div class="tag-badge  bg-soft-Secondary">
+                    <span class="dot dot-navy "></span>
+                    <button class="btn  btn-sm tag-badge">Reschedule</button>
+                </div> *@
+
+                <div class="tag-badge bg-soft-danger">
+                    <span class="dot dot-coral "></span>
+                    <button class="btn  btn-sm tag-badge">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+        <!-----------------------------Comming----------------------------------->
+
+        <div class="col-12 col-md-4 queue-col cBackground">
+            <h5 class="queue-title cQueue">Coming</h5>
+            @* <hr /> *@
+            @{
+                /* @if (i >= 0 && Model is not null) */ // model is a filtered list contain only not confirmed appointments
+                @if (Model != null && i + 1 < Model.Count())
+                {
+                    <div class="Content mt-4">
+                        <p class="mb-1 fw-semibold">@Model[i+1].Patient.FirstName @Model[i+1].Patient.LastName</p>
+                        <p>@Model[i+1].Patient.PhoneNumber</p>
+                    </div>
+                }
+                else
+                {
+                    <br />
+                    <div class="Content mt-4">
+                        <p class="text-muted">No Patients</p>
+                        <p></p>
+                    </div>
+                }
+
+            }
+
+        </div>
+
+
+    </div>
+</section>
+
+
+<!-- ------------- BOTTOM BUTTONS ------------- -->
+<section class="container mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <button class="Magic btn  flex-fill">Magic</button>
+        <a asp-controller="Queue" asp-action="index" class="btn ShowAllQueue brand-blue text-white flex-fill text-black">Show All Queue</a>
+    </div>
+</section>
+<!-- -------------End BOTTOM BUTTONS ------------- -->
+<hr/>
+
+<!---Start Appoitmnets Table-->
+<div class="container mt-4" style="background-color:whitesmoke">
+    <h4 class="mb-3">Today's Appointments</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle ">
+            <thead class="cTableHead">
+                <tr>
+                    <th >Patient ID</th>
+                    <th >Patient Name</th>
+                    <th >Time</th>
+                    <th >Status</th>
+                    <th >Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Example Row -->
+                @foreach (var appointment in AllTodayAppointments )    
+                {
+                    var statusName = Enum.GetName(typeof(AppointmentStatus), appointment.Status);
+                    var badgeClass = appointment.Status == AppointmentStatus.Confirmed ? "My-Green" : "bg-primary";
+
+                    <tr>
+                        <td>@appointment.PatientId</td>
+                        <td>@appointment.Patient.FirstName @appointment.Patient.LastName</td>
+                        <td>@appointment.AppointmentTime</td>
+                        
+                        <!--   -->
+                        <td>
+                            <span class="badge @badgeClass">
+                                @statusName
+                            </span>
+                        </td>
+                        <td>
+@*                             <button class="btn btn-sm me-2 " style="background-color:#42cde2">Reschedule</button> *@
+                            <button class="btn btn-sm btn-danger ">Cancel</button>
+                        </td>
+                    </tr>
+                }
+                <!-- Add more rows dynamically from your model -->
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!---End Appoitmnets Table---->

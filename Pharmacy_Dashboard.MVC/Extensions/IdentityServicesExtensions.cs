@@ -31,12 +31,13 @@ namespace Pharmacy_Dashboard.MVC.Extensions
                     .AddDefaultTokenProviders()
                     .AddTokenProvider<DataProtectorTokenProvider<AppUser>>("Email");
 
-            //services.ConfigureApplicationCookie(config =>
-            //{
-            //    config.LoginPath = "/Account/Login";
-            //    config.LogoutPath = "/Account/Logout";
-            //    config.ExpireTimeSpan = TimeSpan.FromDays(5);
-            //});
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Home/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromDays(14); 
+                options.SlidingExpiration = true;
+            });
 
             return services;
         }

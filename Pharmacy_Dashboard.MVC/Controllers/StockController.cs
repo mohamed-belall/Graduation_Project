@@ -26,8 +26,8 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             _mapper = mapper;
         }
 
-        // http://localhost:5152/Stock/Index
-        //[Authorize(Roles = nameof(UserRoleType.Pharmacist))]
+
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpGet]
         public async Task<IActionResult> Index(string Search, int pageIndex = 1, int pageSize = 10, string sort = "")
         {
@@ -60,7 +60,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
 
         }
 
-        // http://localhost:5152/Stock/Add
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpGet]
         public async Task<IActionResult> Add()
         {
@@ -78,6 +78,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return View();
         }
 
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpGet]
         public async Task<IActionResult> SearchMedicines(string term)
         {
@@ -93,7 +94,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return Json(medicines);
         }
 
-
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpPost]
         public async Task<IActionResult> Add(AddPharmacyMedicineViewModel model)
         {
@@ -127,7 +128,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return RedirectToAction("Index");
         }
 
-        // http://localhost:5152/PharmacyMedicineStock/Edit/16
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -144,7 +145,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return View("Edit", viewModel);
         }
 
-        // POST: /PharmacyMedicineStock/Edit/5
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpPost]
         public async Task<IActionResult> SaveEdit(PharmacyStockEditViewModel model)
         {

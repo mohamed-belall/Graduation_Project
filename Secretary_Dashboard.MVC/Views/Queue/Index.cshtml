@@ -1,0 +1,103 @@
+﻿@using Graduation_Project.Core.Models.Doctors
+@model IReadOnlyList<Appointment>
+
+<div class="container my-5">
+
+    @{
+        DateTime? selectedDate = ViewBag.SelectedDate as DateTime?;
+        string dateValue = selectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd");
+    }
+
+    <!-- ✅ Header Row with Full Width Background -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 px-4 py-3" style="background-color: #eaf7fc; border-bottom: 1px solid #b0d7db;">
+
+        <!-- 🩵 Title -->
+        <h3 class="fw-bold mb-0" style="color: #186A83;">Clinic Queue</h3>
+
+        <!-- 🎯 Filter Form -->
+        <form method="get" class="d-flex align-items-center gap-2 flex-nowrap bg-white p-2 rounded shadow-sm"
+              style="border: 1px solid #b0d7db;">
+
+            <!-- 📅 Date -->
+            <input type="date"
+                   name="date"
+                   class="form-control form-control-sm border-0 shadow-sm"
+                   style="min-width: 160px;"
+@*                    value="@ViewBag.FilterDate?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString(" yyyy-MM-dd")" />*@
+                   value="@dateValue" />
+
+            <!-- 🔎 Filter Button -->
+            <button type="submit"
+                    class="btn btn-sm text-white px-4"
+                    style="background-color: #186A83; border: none;">
+                Filter
+            </button>
+        </form>
+    </div>
+
+
+
+
+    <!-- ✅ Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered text-center align-middle shadow-sm" style="background-color: #ffffff;">
+            <thead style="background-color: #186A83; color: white;">
+                <tr>
+                    <th>ID</th>
+                    <th>Patient Name</th>
+                    <th>Phone</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody style="background-color: #f9f9f9;">
+
+                @if (Model != null && Model.Any())
+                {
+
+                    foreach (var appointment in Model)
+                    {
+                        var status = Enum.GetName(typeof(AppointmentStatus), appointment.Status);
+                        var badgeClass = appointment.Status switch
+                        {
+                            AppointmentStatus.Confirmed => "bg-success",
+                            AppointmentStatus.Completed => "bg-secondary",
+
+                            _ => "bg-warning"
+                        };
+
+
+                        <tr>
+                            <td>@appointment.Id</td>
+                            <td>@appointment.Patient.FirstName @appointment.Patient.LastName</td>
+                            <td>@appointment.Patient.PhoneNumber</td>
+                            <td>@appointment.AppointmentTime.ToString("hh:mm tt")</td>
+                            <td><span class="badge text-white @badgeClass">@status</span></td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <form asp-action="MarkAsCompleted" method="post">
+                                        <input type="hidden" name="id" value="@appointment.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm">Complete</button>
+                                    </form>
+                                    <form asp-action="CancelAppointment" method="post">
+                                        <input type="hidden" name="id" value="@appointment.Id" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                    }
+                }
+
+                else
+                {
+                    <tr>
+                        <td colspan="6">No Appointments Found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

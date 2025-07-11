@@ -11,7 +11,7 @@ namespace Pharmacy_Dashboard.MVC.Helpers
         public MappingProfiles()
         {
             /****************************************** Mapping for Pharmacy Register ******************************************/
-            CreateMap<RegisterViewModel , Pharmacy>()
+            CreateMap<RegisterViewModel, Pharmacy>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PharmacyName))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
@@ -21,7 +21,7 @@ namespace Pharmacy_Dashboard.MVC.Helpers
             /****************************************** Mapping for Pharmacy Edit info ******************************************/
             CreateMap<Pharmacy, EditProfileViewModel>()
                 .ForMember(dest => dest.PharmacyName, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom<PictureUrlResolver<Pharmacy , EditProfileViewModel>>())
+                .ForMember(dest => dest.PictureUrl, opt => opt.MapFrom<PictureUrlResolver<Pharmacy, EditProfileViewModel>>())
                 .ForMember(dest => dest.PharmacyContacts, opt => opt.MapFrom(src => src.pharmacyContacts.Select(c => new PharmacyContactViewModel
                 {
                     Id = c.Id,

@@ -2,6 +2,77 @@ html {
   font-size: 14px;
 }
 
+
+
+
+.bg-soft-base {
+    background-color: #e1f5f7;
+}
+
+.bg-soft-warning {
+    background-color: #fff4e1;
+}
+
+.bg-soft-success {
+    background-color: #d1f6f2;
+}
+
+.bg-soft-danger {
+    background-color: #fedce0;
+}
+
+.bg-soft-info {
+    background-color: #d7efff;
+}
+.bg-soft-Secondary {
+    background-color: #78cbc3;
+}
+.My-Success {
+    background-color: #3092d3;
+}
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 15px;
+    border-radius: 999px;
+  
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: black;
+    font-weight: 500;
+    gap: 0px;
+    height:35px;
+}
+
+    .tag-badge .dot {
+        width: 13px;
+        height:13px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-blue{
+       
+        background-color:blue;
+    }
+    .dot-Red{
+       
+        background-color:red;
+    }
+    .dot-navy{
+       
+        background-color:#f10202;
+    }
+    .dot-green{
+       
+        background-color:forestgreen;
+    }
+    .dot-coral{
+       
+        background-color:coral;
+    }
+
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -19,4 +90,39 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+.NAV-Main-Color {
+    background-color: #186A83 !important;
+}
+
+.cBRAND
+{
+    font-size:25PX;
+    font-weight:400;
+    color:white;
+}
+.cQueue {
+    background-color: #186A83 !important;
+    padding: 0px !important;
+    margin: 0 !important;
+
+}
+.cBackground {
+    background-color: #e0f4f7 !important;
+}
+
+/* Table */
+.cTableHead {
+    background-color: #186A83 !important;
+    color:white;
+    font-weight:200;
+
+
+}
+.My-Green {
+    background-color: #22b3a5;
+}
+.cEmergency {
+    font-weight: 700; 
+    color:red !important;  
 }

@@ -1,0 +1,157 @@
+body {
+    /*background-color: #e0f4f7;*/
+    background-color: #dcdcdc;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.form-wrapper {
+    margin: 40px auto;
+    background: white;
+    padding: 40px 30px;
+    border: 6px solid #00768a; /* Teal-blue border */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h2 {
+    color: #00768a;
+    text-align: left;
+    margin-bottom: 25px;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+label {
+    font-weight: 500;
+    margin-top: 10px;
+    display: block;
+    color: #333;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+select,
+input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border 0.3s ease;
+}
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    select:focus {
+        border-color: #00768a;
+        outline: none;
+    }
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+    fieldset legend {
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+input[type="radio"] {
+    margin-right: 6px;
+    transform: scale(1.2);
+}
+
+.btn {
+    background-color: #00768a;
+    color: white;
+    border: none;
+    padding: 12px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn:hover {
+        background-color: #005c6b;
+    }
+
+.text-danger {
+    font-size: 0.85rem;
+    color: #d00;
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.col {
+    flex: 1;
+    min-width: 45%;
+}
+
+.col-md-6 {
+    flex: 1;
+    min-width: 48%;
+}
+
+.mt-3 {
+    margin-top: 1rem !important;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+/* Calendar tweaks if needed */
+.flatpickr-calendar {
+    font-family: "Segoe UI", sans-serif;
+    border: 1px solid #00768a;
+    border-radius: 10px;
+}
+
+/* Time slot grid */
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+/* Time slot buttons */
+.time-slot-btn {
+    padding: 10px;
+    border: 1px solid #00768a;
+    border-radius: 6px;
+    background-color: white;
+    color: #00768a;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+    .time-slot-btn:hover {
+        background-color: #e6f7fa;
+    }
+
+    .time-slot-btn.selected {
+        background-color: #00768a;
+        color: white;
+    }

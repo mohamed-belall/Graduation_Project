@@ -29,7 +29,7 @@ namespace Pharmacy_Dashboard.MVC.Helpers
                 var value = property?.GetValue(source) as string;
 
                 if (!string.IsNullOrEmpty(value))
-                    return value.StartsWith("/") ? $"{_configuration["ServerUrl"]}{value}" : $"{_configuration["ServerUrl"]}/{value}";
+                    return value.StartsWith("/") ? $"{_configuration["AzureStorageUrl"]}{value}" : $"{_configuration["AzureStorageUrl"]}/{value}";
             }
             return null;
         }

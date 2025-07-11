@@ -19,7 +19,7 @@ namespace Graduation_Project.Api.Helpers
             if (source.ClinicPictures == null || !source.ClinicPictures.Any())
                 return new List<string>();
 
-            return source.ClinicPictures.Select(p => $"{_configuration["ServerUrl"]}{p.ImageUrl}").ToList();
+            return source.ClinicPictures.Select(p => $"{_configuration["AzureStorageUrl"]}/{p.ImageUrl}").ToList();
         }
     }
 }

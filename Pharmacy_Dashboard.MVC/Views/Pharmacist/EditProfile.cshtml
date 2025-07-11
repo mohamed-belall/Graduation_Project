@@ -3,89 +3,82 @@
 @{
     ViewData["Title"] = "Edit Profile";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var message = TempData["ProfileSaved"] as string ?? "Profile updated successfully!";
 }
 
-<!-- Include Leaflet CSS/JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- Confirmation Modal -->
-@*
-        <div class="modal fade" id="confirmSaveModal" tabindex="-1" aria-labelledby="confirmSaveModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmSaveModalLabel">Confirm Save</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to save the changes?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="confirmSaveBtn">Yes, Save</button>
-      </div>
-    </div>
-  </div>
-</div>
-*@
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4 p-4">
 
- @if (message != null)
- {
-     <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 shadow" role="alert" style="z-index: 9999; min-width: 300px;"> 
-         <i class="bi bi-check-circle-fill me-2"></i>
-         @message 
-         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> 
-     </div> 
- }
+        <!-- Stylish Success Message -->
+        @if (TempData["ProfileSaved"] != null)
+        {
+            <div class="alert alert-success d-flex align-items-center justify-content-between p-3 rounded-3 shadow-sm fade show mb-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill fs-4 me-2 text-success"></i>
+                    <span class="fw-medium">@TempData["ProfileSaved"]</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger d-flex flex-column gap-2 p-3 rounded-3 shadow-sm fade show mb-4" role="alert">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-exclamation-circle-fill fs-4 me-2 text-danger"></i>
+                    <span class="fw-medium">Please fix the following errors:</span>
+                </div>
+                <ul class="mb-0 ps-4">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
 
+        <h2 class="text-center mb-4 text-primary fw-bold">Edit Pharmacist Profile</h2>
 
-
-
-<div class="container mt-5">
-    <div class="card shadow p-4">
-        <h2 class="text-center mb-4">Edit Pharmacist Profile</h2>
-        <!-- Profile Image -->
         <form id="profileForm" asp-action="EditProfile" method="post" enctype="multipart/form-data">
+
             <!-- Profile Image -->
             <div class="d-flex justify-content-center mb-4">
                 <div class="position-relative" style="width: 160px; height: 160px;">
-                    <img src="@(string.IsNullOrEmpty(Model.PictureUrl) ? Url.Content("/assets/images/avatar-placeholder.jpg") : Model.PictureUrl)"
-                         class="rounded-circle border border-3 shadow border-primary w-100 h-100"
-                         alt="Profile" id="profileImage" style="object-fit: cover;">
-
-                    <label for="uploadImage" class="position-absolute bottom-0 end-0 bg-primary text-white p-1 rounded-circle" style="cursor:pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-camera"></i>
+                    <img src="@(string.IsNullOrEmpty(Model.PictureUrl) ? Url.Content("~/assets/images/avatar-placeholder.jpg") : Model.PictureUrl)"
+                         class="rounded-circle border border-4 shadow-sm border-primary w-100 h-100"
+                         alt="Profile" id="profileImage" style="object-fit: cover; transition: 0.3s;">
+                    <label for="uploadImage" class="position-absolute bottom-0 end-0 bg-primary text-white p-2 rounded-circle" style="cursor:pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-camera fs-5"></i>
                     </label>
-
                     <input type="file" id="uploadImage" asp-for="ImageFile" class="d-none" onchange="previewImage(this)">
                 </div>
             </div>
 
-
-            <div class="row mb-3">
+            <!-- Email & Pharmacy Name -->
+            <div class="row mb-4">
                 <div class="col-md-6">
-                    <label asp-for="Email"></label>
-                    <input asp-for="Email" class="form-control" readonly />
+                    <label asp-for="Email" class="form-label fw-semibold"></label>
+                    <input asp-for="Email" class="form-control" style="pointer-events: none; background-color: #e9ecef; color: #6c757d;" />
+
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="PharmacyName"></label>
+                    <label asp-for="PharmacyName" class="form-label fw-semibold"></label>
                     <input asp-for="PharmacyName" class="form-control" required />
-                    <span asp-validation-for="PharmacyName" class="text-danger"></span>
+                    <span asp-validation-for="PharmacyName" class="text-danger small"></span>
                 </div>
             </div>
 
-            <!-- Pharmacy Contacts -->
-            <div class="mb-3">
-                <label>Pharmacy Contact</label>
+            <!-- Contacts -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Pharmacy Contacts</label>
                 <div id="contactContainer">
                     @for (int i = 0; i < (Model.PharmacyContacts?.Count ?? 1); i++)
                     {
                         <div class="input-group mb-2 contact-input">
-                            <input type="hidden" asp-for="PharmacyContacts[@i].Id" value="@Model.PharmacyContacts[i].Id" />
-                            <input type="text" asp-for="PharmacyContacts[@i].PhoneNumber" class="form-control" value="@Model.PharmacyContacts[i]?.PhoneNumber" />
+                            <input type="hidden" name="PharmacyContacts[@i].Id" value="@Model.PharmacyContacts[i].Id" />
+                            <input type="text" name="PharmacyContacts[@i].PhoneNumber" class="form-control" value="@Model.PharmacyContacts[i]?.PhoneNumber" />
                             @if (i > 0)
                             {
                                 <button type="button" class="btn btn-outline-danger" onclick="removeContact(this)">
@@ -95,45 +88,56 @@
                         </div>
                     }
                 </div>
-                <button type="button" class="btn btn-outline-success btn-sm" onclick="addContact()">
+                <button type="button" class="btn btn-outline-success btn-sm mt-2" onclick="addContact()">
                     <i class="bi bi-plus-lg"></i> Add Contact
                 </button>
             </div>
 
-            <!-- Address and Map -->
-            <div class="row mb-3">
+            <!-- Address & Map -->
+            <div class="row mb-4">
                 <div class="col-md-6">
-                    <label asp-for="Address"></label>
+                    <label asp-for="Address" class="form-label fw-semibold"></label>
                     <input asp-for="Address" class="form-control" required />
-                    <span asp-validation-for="Address" class="text-danger"></span>
+                    <span asp-validation-for="Address" class="text-danger small"></span>
                 </div>
                 <div class="col-md-6">
-                    <label>Pharmacy Location</label>
-                    <button type="button" class="btn btn-primary w-100 mb-2" onclick="getCurrentLocation()">Get Current Location</button>
-                    <div class="d-flex justify-content-center">
-                        <div id="map" style="height: 300px; width: 100%; max-width: 500px; border: 1px solid #ccc; border-radius: 10px;"></div>
+                    <label class="form-label fw-semibold">Pharmacy Location</label>
+                    <button type="button" class="btn btn-outline-primary w-100 mb-2" onclick="getCurrentLocation()">📍 Get Current Location</button>
+                    <div class="rounded overflow-hidden" style="height: 300px; border: 2px solid #ddd;">
+                        <div id="map" style="height: 100%; width: 100%;"></div>
                     </div>
                     <input type="hidden" name="Latitude" id="latitude" value="@Model.Latitude" />
                     <input type="hidden" name="Longitude" id="longitude" value="@Model.Longitude" />
                 </div>
             </div>
 
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-primary px-4 py-2" onclick="openConfirmModal()">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+
             </div>
         </form>
+
+        <!-- Confirm Modal -->
+        <!-- Confirm Save Modal -->
+        <div id="confirmModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content p-4 rounded-4 shadow-sm bg-white position-relative" style="max-width: 500px; margin: auto;">
+                <span class="close position-absolute top-0 end-0 m-3 fs-4 text-muted" style="cursor:pointer;" onclick="document.getElementById('confirmModal').style.display='none'">&times;</span>
+
+                <h4 class="mb-3 text-dark">Confirm Save</h4>
+                <p class="text-muted">Are you sure you want to save the changes?</p>
+
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-secondary me-2" onclick="document.getElementById('confirmModal').style.display='none'">Cancel</button>
+                    <button type="submit" form="profileForm" class="btn btn-success px-4">Yes, Save</button>
+                </div>
+            </div>
+        </div>
+
+
     </div>
 </div>
-
-<script>
-    setTimeout(() => {
-        const alert = document.querySelector(".alert");
-        if (alert) {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }
-    }, 4000); // auto-close after 4 seconds
-</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -143,79 +147,41 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    document.getElementById('profileImage').src = e.target.result ;
+                    document.getElementById('profileImage').src = e.target.result;
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // Contact Number Logic
-        let contactCount = @Model.PharmacyContacts?.Count ?? 1;
-
-        // Add new contact input field
         function addContact() {
-            if (contactCount >= 3) return alert("Maximum 3 contact numbers allowed.");
+            const existingInputs = document.querySelectorAll(".contact-input");
+            const index = existingInputs.length;
+            if (index >= 3) return alert("Maximum 3 contact numbers allowed.");
 
             const container = document.getElementById("contactContainer");
             const div = document.createElement("div");
             div.className = "input-group mb-2 contact-input";
             div.innerHTML = `
-                <input type="hidden" name="PharmacyContacts[${contactCount}].Id" value="0" />
-                <input type="text" name="PharmacyContacts[${contactCount}].PhoneNumber" class="form-control" />
-                <button type="button" class="btn btn-outline-danger" onclick="removeContact(this)">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            `;
+                                        <input type="hidden" name="PharmacyContacts[${index}].Id" value="0" />
+                                        <input type="text" name="PharmacyContacts[${index}].PhoneNumber" class="form-control" />
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeContact(this)">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    `;
             container.appendChild(div);
-            contactCount++;
         }
 
-        // Remove a contact input field
         function removeContact(btn) {
             const inputGroup = btn.closest(".contact-input");
-            if (document.querySelectorAll(".contact-input").length > 1) {
-                inputGroup.remove();
-                contactCount--;
-            }
+            inputGroup.remove();
+
+            // Reorder names after removal
+            document.querySelectorAll(".contact-input").forEach((input, i) => {
+                input.querySelector("input[type='hidden']").setAttribute("name", `PharmacyContacts[${i}].Id`);
+                input.querySelector("input[type='text']").setAttribute("name", `PharmacyContacts[${i}].PhoneNumber`);
+            });
         }
 
-        // Before submitting the form, ensure the dynamic contact numbers are included
-        document.getElementById("profileForm").onsubmit = function (event) {
-            const dynamicContacts = [];
-
-            // Loop through dynamically added contact fields
-            document.querySelectorAll(".contact-input").forEach(function (contactInput, index) {
-                const phoneNumber = contactInput.querySelector("input[type='text']").value;
-                const id = contactInput.querySelector("input[type='hidden']").value;
-
-                // Add the contact data to the dynamicContacts array
-                dynamicContacts.push({
-                    PhoneNumber: phoneNumber,
-                    Id: id
-                });
-
-
-            });
-
-            // Manually update the form data with dynamic contacts
-            const formData = new FormData(document.getElementById("profileForm"));
-            dynamicContacts.forEach(function (contact, index) {
-                formData.append(`PharmacyContacts[${index}].PhoneNumber`, contact.PhoneNumber);
-                formData.append(`PharmacyContacts[${index}].Id`, contact.Id);
-            });
-
-            // Create a new request to submit form data (optional: use AJAX for async)
-            const request = new XMLHttpRequest();
-            request.open("POST", "EditProfile", true);
-
-            // Send the updated form data including the dynamic contacts
-            request.send(formData);
-
-            // Prevent the default form submission
-            event.preventDefault();
-        };
-
-        // Leaflet Map Logic
         const initialLat = @Model.Latitude ?? 30.0444;
         const initialLng = @Model.Longitude ?? 31.2357;
         let map = L.map('map').setView([initialLat, initialLng], 13);
@@ -256,17 +222,32 @@
             }
         }
 
-        // document.getElementById("profileForm").onsubmit = function (event) {
-        //     event.preventDefault();
-        //     var confirmModal = new bootstrap.Modal(document.getElementById('confirmSaveModal'));
-        //     confirmModal.show();
-
-        //     // On confirm, submit the form
-        //     document.getElementById('confirmSaveBtn').onclick = function () {
-        //         confirmModal.hide();
-        //         document.getElementById("profileForm").submit();
-        //     };
-        // };
+        function openConfirmModal() {
+            document.getElementById("confirmModal").style.display = "flex";
+        }
 
     </script>
 }
+
+<style>
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+</style>

@@ -6,13 +6,19 @@ using Graduation_Project.Core.Models.Identity;
 using Graduation_Project.Core.Models.Pharmacies;
 using Graduation_Project.Core.Models.SendingEmail;
 using Graduation_Project.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Pharmacy_Dashboard.MVC.Helpers;
 using Pharmacy_Dashboard.MVC.ViewModel.Account;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Graduation_Project.Core.Constants;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Pharmacy_Dashboard.MVC.Controllers
 {
@@ -59,7 +65,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
         public async Task<IActionResult> SignUp(RegisterViewModel model)
         {
             if(ModelState.IsValid) 
-            {
+            { 
                 var user = await _userService.UserExistsAsync(model.Email);
                 if(user is null)
                 {
@@ -68,7 +74,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
                     {
                         UserName = model.Email.Split("@")[0],
                         Email = model.Email,
-                        FullName = model.Email.Split("@")[0],
+                        FullName = model.FullName,
                     };
                     var result = await _userManager.CreateAsync(newUser, model.Password);
 
@@ -80,8 +86,6 @@ namespace Pharmacy_Dashboard.MVC.Controllers
 
                     // Add the user to the "Pharmacy" role
                     await _userManager.AddToRoleAsync(newUser, UserRoleType.Pharmacist.ToString());
-
-
 
                     // Validate and upload the LicenseImage
                     if(model.ImageFile is not null && model.ImageFile.Length > 0)
@@ -211,34 +215,39 @@ namespace Pharmacy_Dashboard.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 // check this email is exist or not 
                 var user = await _userService.UserExistsAsync(model.Email);
-                if(user is not null)
+                if (user is not null)
                 {
-                    if(user.EmailConfirmed is false)
+                    if (user.EmailConfirmed is false)
                     {
                         ModelState.AddModelError(string.Empty, "You need to confirm your email to log in.");
                         return View(model);
                     }
+
                     // check password
                     var flag = await _userManager.CheckPasswordAsync(user, model.Password);
-                    if(flag)
+                    if (flag)
                     {
                         var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, true);
-                        if(result.Succeeded)
+                        if (result.Succeeded)
                         {
-
-                            var token =  await _authServices.CreateTokenAsync(user, _userManager);
+                            var token = await _authServices.CreateTokenAsync(user, _userManager);
                             HttpContext.Session.SetString("JWTToken", token);
 
                             return RedirectToAction("Index", "Dashboard");
                         }
+                        if (result.IsLockedOut)
+                        {
+                            ModelState.AddModelError(string.Empty, "Your account is locked out. Please try again later.");
+                            return View(model);
+                        }
                     }
                 }
 
-                ModelState.AddModelError(string.Empty , "Invalid Username or Password");
+                ModelState.AddModelError(string.Empty, "Invalid Username or Password");
             }
             return View(model);
         }
@@ -259,6 +268,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return View();
         }
 
+        [EnableRateLimiting("PasswordLimiter")]
         [HttpPost]
         public async Task<IActionResult> SendResetLink(ForgotPasswordViewModel model)
         {
@@ -269,8 +279,6 @@ namespace Pharmacy_Dashboard.MVC.Controllers
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user); // unique for this user once time
                     var passwordResetLink = Url.Action(nameof(ResetPassword), "Account", new { email = model.Email , token = token } , Request.Scheme);
-
-                    // https://localhost:44303/Account/ResetPassword?email=mohammed@gmail.com&Token=sdfdsfasdfasdf
 
                     var email = new Email()
                     {
@@ -333,6 +341,48 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return View(model);
         }
 
+        #endregion
+
+        #region Change Password
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if(ModelState.IsValid)
+            {
+                var user = await _userService.UserExistsAsync(User.FindFirstValue(ClaimTypes.Email));
+                if(user is not null)
+                {
+                    var isPasswordValid = await _signInManager.CheckPasswordSignInAsync(user, model.CurrentPassword, true);
+                    if (!isPasswordValid.Succeeded)
+                    {
+                        ModelState.AddModelError(string.Empty, "Current password is incorrect.");
+                        return View(model);
+                    }
+
+                    var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                    if(result.Succeeded)
+                    {
+                        TempData["Success"] = "Your password has been changed successfully.";
+                        return RedirectToAction(nameof(ChangePassword));
+                    }
+                    else
+                    {
+                        foreach (var error in result.Errors)
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        return View(model);
+                    }
+                }
+                ModelState.AddModelError(string.Empty, "User not found");
+            }
+            return View(model);
+        }
         #endregion
 
         /************************** Private Method **************************/

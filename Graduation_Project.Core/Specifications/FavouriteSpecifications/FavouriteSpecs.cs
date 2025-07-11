@@ -24,6 +24,9 @@ namespace Graduation_Project.Core.Specifications.FavouriteSpecifications
         {
             ThenIncludes.Add(f => f.Include(f => f.Doctor).ThenInclude(d => d.WorkSchedules));
             ThenIncludes.Add(f => f.Include(f => f.Doctor).ThenInclude(d => d.ScheduleExceptions));
+            ThenIncludes.Add(f => f.Include(f => f.Doctor).ThenInclude(d => d.Specialty));
+            ThenIncludes.Add(f => f.Include(f => f.Doctor).ThenInclude(d => d.Clinic).ThenInclude(c => c.Region));
+            ThenIncludes.Add(f => f.Include(f => f.Doctor).ThenInclude(d => d.Clinic).ThenInclude(c => c.Governorate));
 
             ApplyPagination((favrouiteDoctorSpecParams.PageIndex - 1) * favrouiteDoctorSpecParams.PageSize, favrouiteDoctorSpecParams.PageSize);
         }

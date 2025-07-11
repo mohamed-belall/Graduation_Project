@@ -42,7 +42,7 @@ namespace Graduation_Project.Api.Controllers.PatientControllers
             _notificationService = notificationService;
         }
 
-        /****************************************** Get All Medical History and Categories for Current User ******************************************/
+        /****************************************** Get All Medical History By Category id for Current User ******************************************/
         [Authorize(Roles = nameof(UserRoleType.Patient))]
         [HttpGet("GetUserHistoryByCategory/{medicalCategoryId:int}")]
         public async Task<ActionResult<IReadOnlyList<MedicalHistoryDto>>> GetUserHistoryByCategory(int medicalCategoryId)
@@ -64,6 +64,27 @@ namespace Graduation_Project.Api.Controllers.PatientControllers
 
             return Ok(medicalHistoriesDto);
         }
+        /****************************************** Get All Medical History of specific patient by patient id and category id for the doctor ******************************************/
+        [Authorize(Roles = nameof(UserRoleType.Doctor))]
+        [HttpGet("GetPatientHistoryByCategory")]
+        public async Task<ActionResult<IReadOnlyList<MedicalHistoryDto>>> GetPatientHistoryByCategory([FromQuery]int patientId,[FromQuery] int medicalCategoryId)
+        {
+            var patient = await _unitOfWork.Repository<Patient>().GetByConditionAsync(p => p.Id == patientId);
+
+            if (patient is null)
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "This Patient Not Found"));
+
+            var spec = new MedicalHistoryWithMedicalImage(patientId, medicalCategoryId);
+            var medicalHistories = await _unitOfWork.Repository<MedicalHistory>().GetAllWithSpecAsync(spec);
+
+            if (medicalHistories is null || !medicalHistories.Any())
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "Medical Histories Not Found"));
+
+            var medicalHistoriesDto = _mapper.Map<IReadOnlyList<MedicalHistory>, IReadOnlyList<MedicalHistoryDto>>(medicalHistories);
+
+            return Ok(medicalHistoriesDto);
+        }
+
 
         /****************************************** Add Medicl History ******************************************/
         [Authorize(Roles = nameof(UserRoleType.Patient))]

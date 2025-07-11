@@ -85,6 +85,8 @@ namespace Pharmacy_Dashboard.MVC
             });
             var app = builder.Build();
 
+            app.UseStatusCodePagesWithReExecute("/Home/Error", "?code={0}");
+
             #region Update-Database auto 
             var scope = app.Services.CreateScope();
 

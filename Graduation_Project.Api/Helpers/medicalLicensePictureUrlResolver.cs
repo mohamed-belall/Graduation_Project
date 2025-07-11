@@ -22,7 +22,7 @@ namespace Graduation_Project.Api.Helpers
             {
                 var medicalLicensePictureUrl = MedicalLicensePictureUrlProperty.GetValue(source) as string;
                 if (!string.IsNullOrEmpty(medicalLicensePictureUrl))
-                    return medicalLicensePictureUrl[0] == '/' ? $"{_configuration["ServerUrl"]}{medicalLicensePictureUrl}" : $"{_configuration["ServerUrl"]}/{medicalLicensePictureUrl}";
+                    return medicalLicensePictureUrl[0] == '/' ? $"{_configuration["AzureStorageUrl"]}{medicalLicensePictureUrl}" : $"{_configuration["AzureStorageUrl"]}/{medicalLicensePictureUrl}";
             }
 
             return string.Empty;

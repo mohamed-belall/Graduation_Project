@@ -12,10 +12,10 @@
         public string? NationalID { get; set; } // National ID of the pharmacist
 
         // Relationships
-        public ICollection<Doctor> doctors { get; set; } // Navigation property: a secretary can work with multiple doctors
-        public ICollection<ClincSecretary> clincSecretarys { get; set; } // Navigation property: a Secretary can Work On multiple clinic
-        //public ICollection<NotificationRecipient> notificationRecipients { get; set; } // Navigation property: a Secretary can Work On multiple clinic
 
+        [ForeignKey("clinic")]
+        public int clinicId { get; set; }
+        public Clinic? clinic { get; set; }
     }
 }
 

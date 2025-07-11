@@ -1,0 +1,101 @@
+﻿@using Graduation_Project.Core.Enums
+@using Secretary_Dashboard.MVC.ViewModel
+@model ConsultationFormVM
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Consultation Form";
+}
+
+<link rel="stylesheet" href="~/css/consultation.css" />
+
+<div class="form-wrapper">
+    <h2>Medical Consultation Form</h2>
+
+    <form asp-action="Index" method="post" novalidate>
+        <div class="row">
+            <div class="col">
+                <label asp-for="FirstName"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col">
+                <label asp-for="LastName"></label>
+                <input asp-for="LastName" class="form-control" />
+            </div>
+        </div>
+
+        <label asp-for="DateOfBirth" class="mt-3"></label>
+        <input asp-for="DateOfBirth" class="form-control" />
+
+        <fieldset class="mt-3">
+            <legend>Gender</legend>
+            @foreach (var g in Enum.GetValues(typeof(Gender)))
+            {
+                <label class="me-2">
+                    <input type="radio" asp-for="Gender" value="@g" /> @g
+                </label>
+            }
+        </fieldset>
+
+        <label asp-for="PhoneNumber" class="mt-3"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+
+        <h5 class="mt-4">Consultation Appointment</h5>
+
+        <div class="row">
+            <div class="col-md-6  mt-1">
+                <label for="appointmentDate">Choose Date</label>
+                <input type="date"              
+                id="AppointmentDate"
+                name="AppointmentDate"
+                class="form-control"
+                placeholder="Select a date" />
+            </div>
+
+            <div class="col-md-6">
+                <label>Avalaible Slots</label>
+                <div class="time-slots">
+                    @foreach (var slot in new[] { "09:00", "10:00", "11:00", "14:00", "15:00", "16:00" })
+                    {
+                        <button type="button" class="time-slot-btn">@slot</button>
+                    }
+                </div>
+                <input type="hidden" name="AppointmentTime" id="AppointmentTime" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4 w-100">Submit</button>
+    </form>
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* calendar */
+            flatpickr("#appointmentDate", {
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                defaultDate: new Date()
+            });
+
+            /* time slots */
+            const hidden = document.getElementById('AppointmentTime');
+
+            document.querySelectorAll('.time-slot-btn')
+                    .forEach(btn => btn.addEventListener('click', () => {
+                        hidden.value = btn.textContent.trim();
+
+                        document.querySelectorAll('.time-slot-btn')
+                                .forEach(b => b.classList.toggle('selected', b === btn));
+                    }));
+        });
+    </script>
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

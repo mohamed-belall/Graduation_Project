@@ -195,6 +195,8 @@ h1, h2, h3, h4, h5, h6 {
         align-items: center;
         color: var(--text-dark);
         text-decoration: none;
+        margin-right: 40px;
+        margin-left: 10px;
     }
 
     .header-right .user-name {

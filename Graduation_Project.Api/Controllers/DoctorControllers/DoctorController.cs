@@ -105,9 +105,21 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
             _unitOfWork.Repository<Doctor>().Update(doctor);
             await _unitOfWork.Repository<Doctor>().SaveAsync();
 
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            if (userEmail is null || string.IsNullOrEmpty(userEmail))
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "User Not Found"));
+
+            var appUser = await _userManager.FindByEmailAsync(userEmail);
+            if(appUser is null)
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "User not found"));
+
+            appUser.FullName = doctorDtoFromRequest.FullName;
+            await _userManager.UpdateAsync(appUser);
+
+
            var  doctorForProfileToReturnDto = _mapper.Map<Doctor, DoctorForProfileToReturnDto>(doctor);
 
-            doctorForProfileToReturnDto.Email = User.FindFirstValue(ClaimTypes.Email) ?? "";
+            doctorForProfileToReturnDto.Email = userEmail;
 
             return Ok(doctorForProfileToReturnDto);
 
@@ -130,10 +142,14 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
             return Ok(ratingAndReviews);
         }
 
-        //[Authorize(Roles = nameof(UserRoleType.Patient))]
+        [Authorize(Roles = nameof(UserRoleType.Patient))]
         [HttpGet("DoctorWithFilter")]
-        public async Task<ActionResult<Pagination<SortingDoctorDto>>> GetDoctorsAsync([FromQuery] DoctorSpecParams specParams)
+        public async Task<ActionResult<Pagination<SortingDoctorDto>>> GetDoctorsAsync([FromQuery] DoctorSpecParams specParams, [FromQuery] string? lang = "en")
         {
+            if (lang.ToLower() != "ar" && lang.ToLower() != "en")
+                return BadRequest(new ApiResponse(StatusCodes.Status400BadRequest, "Language Not Supported"));
+            
+
             IReadOnlyList<Doctor>? doctors;
             int count;
             if (specParams.RegionId.HasValue || specParams.GovernorateId.HasValue)
@@ -159,7 +175,11 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
             }
 
             var data = _mapper.Map<IReadOnlyList<SortingDoctorDto>>(doctors, opts =>
-                opts.Items["AvailabilityFilter"] = specParams.Availability);
+            {
+                opts.Items["lang"] = lang ?? "en";
+                opts.Items["AvailabilityFilter"] = specParams.Availability;
+            });
+
             return Ok(new Pagination<SortingDoctorDto>(specParams.PageIndex, specParams.PageSize, count, data));
         }
 
@@ -168,8 +188,12 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
         [Authorize(Roles = nameof(UserRoleType.Patient))]
         [HttpGet("GetDetailsDuringAppointment/{id:int}")]
         [ServiceFilter(typeof(ExistingIdFilter<Doctor>))]
-        public async Task<ActionResult<DoctorDetailsDto>> GetDoctorDetailsDuringAppointment(int id)
+        public async Task<ActionResult<DoctorDetailsDto>> GetDoctorDetailsDuringAppointment(int id , [FromQuery] string? lang = "en")
         {
+            if (lang.ToLower() != "ar" && lang.ToLower() != "en")
+                return BadRequest(new ApiResponse(StatusCodes.Status400BadRequest, "Language Not Supported"));
+
+
             //Get Doctor From Doctor Table in business DB
             DoctorDetailsSpecs doctorSpecification = new DoctorDetailsSpecs(id);
             var doctor = await _unitOfWork.Repository<Doctor>().GetWithSpecsAsync(doctorSpecification);
@@ -186,7 +210,7 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
                 IsFavourite = await CheckFavouriteDoctor(PatientId, doctor.Id)  // check in favourite table 
             };
 
-            doctorDetailsDto = _mapper.Map(doctor, doctorDetailsDto);
+            doctorDetailsDto = _mapper.Map(doctor, doctorDetailsDto ,opts => opts.Items["lang"] = lang ?? "en");
 
             return Ok(doctorDetailsDto);
         }
@@ -252,6 +276,27 @@ namespace Graduation_Project.Api.Controllers.DoctorControllers
                 return NotFound(new ApiResponse(StatusCodes.Status404NotFound));
 
             return Ok(patient);
+        }
+
+        [Authorize(Roles = nameof(UserRoleType.Doctor))]
+        [HttpGet("HomeCards")]
+        public async Task<ActionResult<DoctorCountDto>> GetDoctorCards()
+        {
+            var doctorId = int.Parse(User.FindFirstValue(Identifiers.DoctorId));
+
+            var spec = new DoctorWithCardsSpecs(doctorId);
+            var doctor = await _unitOfWork.Repository<Doctor>().GetWithSpecsAsync(spec);
+            if (doctor is null)
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "Doctor not found"));
+
+            var doctorCountDto = new DoctorCountDto
+            {
+                TotalFavourite = doctor.Favorites.Count(),
+                TotalReviews = doctor.Feedbacks.Count(),
+                TotalAppointments = doctor.Appointments.Count()
+            };
+
+            return Ok(doctorCountDto);
         }
 
         private IReadOnlyList<Doctor>? FilteredDoctors(IReadOnlyList<Doctor> doctors, int? regionId, int? governorateId)

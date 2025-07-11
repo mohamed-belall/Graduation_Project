@@ -33,7 +33,7 @@ namespace Graduation_Project.Service
                 return null;
 
             if (!string.IsNullOrEmpty(patient.PictureUrl))
-                patient.PictureUrl = patient.PictureUrl[0] == '/' ? $"{_configuration["ServerUrl"]}{patient.PictureUrl}" : $"{_configuration["ServerUrl"]}/{patient.PictureUrl}";
+                patient.PictureUrl = patient.PictureUrl[0] == '/' ? $"{_configuration["AzureStorageUrl"]}{patient.PictureUrl}" : $"{_configuration["AzureStorageUrl"]}/{patient.PictureUrl}";
 
             if (Email is null)
             {

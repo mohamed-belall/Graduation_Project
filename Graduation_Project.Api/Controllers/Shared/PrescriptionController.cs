@@ -75,14 +75,8 @@ namespace Graduation_Project.Api.Controllers.Shared
 
                     await _unitOfWork.Repository<MedicinePrescription>().AddRangeAsync(medicinePrescriptions);
                     var result = await _unitOfWork.CompleteAsync();
-                    if (result == 0)
-                    {
-                        return BadRequest(new ApiResponse(400));
-                    }
-                    else
-                    {
-                        Console.WriteLine("MedicinePrescriptions Added Successfully");
-                    }
+                    if (result <= 0)
+                        return BadRequest(new ApiResponse(400, "Failed to add medicine prescriptions."));
                 }
 
                 if(!prescriptionFromUser.PrescriptionImages.IsNullOrEmpty())
@@ -97,23 +91,19 @@ namespace Graduation_Project.Api.Controllers.Shared
 
                     await _unitOfWork.Repository<PrescriptionImage>().AddRangeAsync(prescriptionImages);
                     var result = await _unitOfWork.CompleteAsync();
-                    if(result == 0)
-                    {
-                        return BadRequest(new ApiResponse(400));
-                    }
-                    else
-                    {
-                        Console.WriteLine("prescriptionImages Added Successfully");
-                    }
-
-
+                    if(result <= 0)
+                        return BadRequest(new ApiResponse(400, "Failed to add prescription images."));
                 }
 
                 var electornicPrescriptionResponse = _mapper.Map<Prescription, PrescriptionResponseDTO>(createdPrescription);
                 // Update Points
                 await _patientService.UpdatePoints(prescriptionFromUser.PatientId, Points.CompletedAppointment);
+
                 // push notifications
-                await _notificationService.SendNotificationAsync(createdPrescription.Patient.ApplicationUserId, $"New Prescription From Doctor {doctor.FirstName + " " + doctor.LastName}", "New Prescription");
+                await _notificationService.SendNotificationAsync(createdPrescription.Patient.ApplicationUserId,
+                                                                 $"New Prescription From Doctor {doctor.FirstName + " " + doctor.LastName}",
+                                                                 "New Prescription");
+
                 await _notificationService.SendNotificationAsync(createdPrescription.Patient.ApplicationUserId, $"New {Points.CompletedAppointment} Points", "New Points");
 
                 return Ok(electornicPrescriptionResponse);
@@ -133,15 +123,13 @@ namespace Graduation_Project.Api.Controllers.Shared
             var spec = new PrescriptionWithMedicinePrescriptionsAndImageSpec(id);
             var prescriptionFromDB = await _unitOfWork.Repository<Prescription>().GetWithSpecsAsync(spec);
             if(prescriptionFromDB is null)
-            {
-                return (NotFound(new ApiResponse(404)));
-            }
+                return NotFound(new ApiResponse(404, "Prescription not found."));
+
             //check if the doctor who wrote it is the same person who is editing
             var DoctorId = int.Parse(User.FindFirstValue(Identifiers.DoctorId));
             if(prescriptionFromDB.DoctorId != DoctorId)
-            {
-                return (Unauthorized(new ApiResponse(401, "This Doctor is not Authorized to Edit this")));
-            }
+                return Unauthorized(new ApiResponse(401, "This Doctor is not Authorized to Edit this Prescription."));
+
             var currentDoctor = await _unitOfWork.Repository<Doctor>().GetAsync(DoctorId);
             var currentPatient = await _unitOfWork.Repository<Patient>().GetAsync(prescriptionFromDB.PatientId);
 
@@ -188,9 +176,8 @@ namespace Graduation_Project.Api.Controllers.Shared
                 var result = await _unitOfWork.CompleteAsync();
                 
                 if (hasChanges && result == 0)
-                {
-                    return BadRequest(new ApiResponse(400));
-                }
+                    return BadRequest(new ApiResponse(400, "Failed to update prescription."));
+                
                 var electornicPrescriptionResponse = _mapper.Map<Prescription, PrescriptionResponseDTO>(prescriptionFromDB);
                 return Ok(electornicPrescriptionResponse);
             }
@@ -210,20 +197,16 @@ namespace Graduation_Project.Api.Controllers.Shared
             var spec = new PrescriptionWithMedicinePrescriptionsAndImageSpec(id);
             var prescriptionFromDB = await _unitOfWork.Repository<Prescription>().GetWithSpecsAsync(spec);
             if(prescriptionFromDB is null)
-            {
-                return NotFound(new ApiResponse(404));
-            }
+                return NotFound(new ApiResponse(404, "Prescription not found."));
 
             var DoctorId = int.Parse(User.FindFirstValue(Identifiers.DoctorId));
             if (prescriptionFromDB.DoctorId != DoctorId)
-            {
-                return (Unauthorized(new ApiResponse(401, "This Doctor is not Authorized to Delete this")));
-            }
+                return Unauthorized(new ApiResponse(401, "This Doctor is not Authorized to Delete this Prescription."));
+            
 
             if ((DateTime.UtcNow - prescriptionFromDB.IssuedDate).TotalMinutes > 15)
-            {
                 return BadRequest(new ApiResponse(400, "You cannot delete this prescription after 15 minutes of creation."));
-            }
+            
 
             if (prescriptionFromDB.MedicinePrescriptions.Any())
             {
@@ -232,10 +215,8 @@ namespace Graduation_Project.Api.Controllers.Shared
             _unitOfWork.Repository<Prescription>().Delete(prescriptionFromDB);
 
             var result = await _unitOfWork.CompleteAsync();
-            if(result == 0)
-            {
-                return BadRequest(new ApiResponse(400));
-            }
+            if(result <= 0)
+                return BadRequest(new ApiResponse(400, "Failed to delete prescription."));
 
             return Ok(new ApiResponse(StatusCodes.Status200OK, "Prescription deleted Successfully"));
         }
@@ -248,9 +229,7 @@ namespace Graduation_Project.Api.Controllers.Shared
             var spec = new PrescriptionWithMedicinePrescriptionsAndImageSpec(id);
             var prescriptionFromDB = await _unitOfWork.Repository<Prescription>().GetWithSpecsAsync(spec);
             if(prescriptionFromDB is null)
-            {
-                return NotFound(new ApiResponse(404));
-            }
+                return NotFound(new ApiResponse(404, "Prescription not found."));
 
             return Ok(_mapper.Map<Prescription, PrescriptionResponseDTO>(prescriptionFromDB));
         }
@@ -267,9 +246,7 @@ namespace Graduation_Project.Api.Controllers.Shared
             var spec = new AllPrescriptionsForPatientWithDoctorIntersectionSpec(id, doctorId);
             var prescriptionsFromDB = await _unitOfWork.Repository<Prescription>().GetAllWithSpecAsync(spec);
             if (prescriptionsFromDB.IsNullOrEmpty())
-            {
-                return NotFound(new ApiResponse(404));
-            }
+                return NotFound(new ApiResponse(404, "No prescriptions found for this patient."));
 
             return Ok(_mapper.Map<IReadOnlyList<Prescription>, IReadOnlyList<PrescriptionListViewFormDto>>(prescriptionsFromDB));
         }
@@ -283,9 +260,7 @@ namespace Graduation_Project.Api.Controllers.Shared
             var spec = new AllPrescriptionsForPatientSpec(patientId);
             var prescriptionsFromDB = await _unitOfWork.Repository<Prescription>().GetAllWithSpecAsync(spec);
             if (prescriptionsFromDB.IsNullOrEmpty())
-            {
-                return NotFound(new ApiResponse(404));
-            }
+                return NotFound(new ApiResponse(404, "No prescriptions found for this patient."));
 
             return Ok(_mapper.Map<IReadOnlyList<Prescription>, IReadOnlyList<PrescriptionListViewFormForPatientDto>>(prescriptionsFromDB));
         }

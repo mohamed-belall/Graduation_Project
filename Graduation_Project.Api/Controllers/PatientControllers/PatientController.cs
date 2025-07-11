@@ -86,14 +86,25 @@ namespace Graduation_Project.Api.Controllers.PatientControllers
                 patient.PictureUrl = uploadedPictureUrlFilePath;
             }
 
-
             // Update Patient 
             _unitOfWork.Repository<Patient>().Update(patient);
             await _unitOfWork.Repository<Patient>().SaveAsync();
 
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            if(userEmail is null || string.IsNullOrEmpty(userEmail))
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "User Not Found"));
+
+            var appUser = await _userManager.FindByEmailAsync(userEmail);
+            if (appUser is null)
+                return NotFound(new ApiResponse(StatusCodes.Status404NotFound, "User Not Found"));
+
+            appUser.FullName = patientProfileFromRequest.FullName;
+
+            await _userManager.UpdateAsync(appUser);
+
             var patientForProfileToReturnDto = _mapper.Map<Patient  , PatientForProfileToReturnDto>(patient);
 
-            patientForProfileToReturnDto.Email = User.FindFirstValue(ClaimTypes.Email) ?? "";
+            patientForProfileToReturnDto.Email = userEmail;
 
             return Ok(patientForProfileToReturnDto);
         }

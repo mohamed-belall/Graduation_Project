@@ -16,7 +16,7 @@ namespace Graduation_Project.Api.Helpers
         {
             if (!string.IsNullOrEmpty(source.pharmacy.ProfilePictureUrl))
             {
-                return source.pharmacy.ProfilePictureUrl[0] == '/' ? $"{_configuration["ServerUrl"]}{source.pharmacy.ProfilePictureUrl}" : $"{_configuration["ServerUrl"]}/{source.pharmacy.ProfilePictureUrl}";
+                return source.pharmacy.ProfilePictureUrl[0] == '/' ? $"{_configuration["AzureStorageUrl"]}{source.pharmacy.ProfilePictureUrl}" : $"{_configuration["AzureStorageUrl"]}/{source.pharmacy.ProfilePictureUrl}";
             }
             return null;
         }

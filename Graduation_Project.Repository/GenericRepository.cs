@@ -51,7 +51,7 @@ namespace Graduation_Project.Repository
         }
         public async Task<IReadOnlyList<T>?> GetAllWithSpecAsync(ISpecifications<T> specs)
         {
-            return await ApplyQuery(specs).ToListAsync();
+            return (IReadOnlyList<T>?)await ApplyQuery(specs).ToListAsync();
         }
 
 

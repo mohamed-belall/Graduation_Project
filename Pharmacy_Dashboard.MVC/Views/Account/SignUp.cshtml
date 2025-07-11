@@ -29,18 +29,23 @@
             <div id="step1">
                 <h2 class=" header-txt">Your Personal Information</h2>
                 <div class="input-group">
-                    <label>Username</label>
-                    <input asp-for="Email" class="form-control" />
+                    <label>Name</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter Your Name" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="example@example.com" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <input asp-for="Password" type="password" class="form-control" />
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password" />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
                 <div class="input-group">
                     <label>Confirm Password</label>
-                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter your password" />
                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                 </div>
                 <input type="button" value="Next Step" class="btn-custom btn-primary next-step-btn w-100" />
@@ -61,19 +66,19 @@
             <div class="input-row">
                 <div class="input-group">
                     <label>Pharmacy Name</label>
-                    <input asp-for="PharmacyName" class="form-control" />
+                        <input asp-for="PharmacyName" class="form-control" placeholder="e.g., Balto Pharmacy" />
                     <span asp-validation-for="PharmacyName" class="text-danger"></span>
                 </div>
                 <div class="input-group">
                     <label>Pharmacy Address</label>
-                    <input asp-for="Address" class="form-control" />
+                        <input asp-for="Address" class="form-control" placeholder="123 Main Street, City" />
                     <span asp-validation-for="Address" class="text-danger"></span>
                 </div>
             </div>
             <div class="input-row">
                 <div class="input-group">
                     <label>Contact Number</label>
-                    <input asp-for="PharmacyContact.PhoneNumber" class="form-control" />
+                    <input asp-for="PharmacyContact.PhoneNumber" class="form-control" placeholder="e.g., 01012345678 or 0402345678" />
                 </div>
                 <div class="input-group">
                     <label>Upload Pharmacy License</label>
@@ -281,6 +286,21 @@
     background: #e0e6f7;
     color: #1e2a5a;
 }
+
+input::placeholder,
+textarea::placeholder {
+    color: #6c757d; 
+    font-size: 0.95rem; 
+    font-style: italic; 
+    opacity: 0.85; 
+    transition: color 0.3s;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    color: #bbb; 
+}
+
 
 </style>
 

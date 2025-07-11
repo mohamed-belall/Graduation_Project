@@ -20,10 +20,6 @@ namespace Graduation_Project.Api.DTO.Doctors
         [Phone(ErrorMessage = "Invalid phone number format.")]
         public string? PhoneNumber { get; set; }
 
-        [Required(ErrorMessage = "Gender is required.")]
-        [RegularExpression("^(Male|Female)$", ErrorMessage = "Gender must be either 'Male' or 'Female'.")]
-        public Gender Gender { get; set; } // Enum --> String (Readability)
-
         [DataType(DataType.Date)]
         [PastDate(ErrorMessage = "Date of Birth must be in the past.")]
         public DateOnly? DateOfBirth { get; set; }

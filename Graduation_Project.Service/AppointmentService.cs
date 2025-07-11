@@ -159,7 +159,7 @@ namespace Graduation_Project.Service
         public async Task<ServiceResult<Dictionary<DateOnly, List<SlotDto>>>> GetAvailableSlotsAsync(Doctor doctor)
         {
 
-            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly today = DateHelper.GetTodayInEgypt();
             int daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
 
             var appointmentSpec = new AppointmentSpecifications(doctor.Id, today);

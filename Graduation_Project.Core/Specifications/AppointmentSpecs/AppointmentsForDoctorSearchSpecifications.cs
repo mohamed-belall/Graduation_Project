@@ -11,7 +11,7 @@ namespace Graduation_Project.Core.Specifications.AppointmentSpecs
         public AppointmentsForDoctorSearchSpecifications(AppointmentSpecParams specParams)
             : base(a =>
                 a.DoctorId == specParams.Id
-                &&
+            &&
                 (string.IsNullOrEmpty(specParams.Search) ||
                     (
                         !string.IsNullOrEmpty(specParams.FirstNameSearch) &&
@@ -26,7 +26,9 @@ namespace Graduation_Project.Core.Specifications.AppointmentSpecs
                             )
                         )
                     )
-                )
+                ) 
+            &&
+                (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Completed) // Only booked appointments
             )
         {
             Includes.Add(a => a.Patient); // Include patient details

@@ -324,6 +324,7 @@ button:not(:disabled),
 [type=reset]:not(:disabled),
 [type=submit]:not(:disabled) {
   cursor: pointer;
+  width:92px; /*my edit*/
 }
 
 ::-moz-focus-inner {

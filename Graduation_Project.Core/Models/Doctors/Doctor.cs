@@ -1,23 +1,10 @@
 ﻿namespace Graduation_Project.Core.Models.Doctors
 {
     public class Doctor: Person
-    {
-        //[Required(ErrorMessage = "National ID is required.")]
-        //[StringLength(14, ErrorMessage = "National ID must be 14 characters.")]
-        //public string? NationalID { get; set; }
-
-
-        //public string MedicalLicence { get; set; } // we want to talk about this
-
-        //[Required(ErrorMessage = "Medical License is required.")]
-     
+    {     
         public string? MedicalLicensePictureUrl { get; set; }
 
-        //[NotMapped]
-        //public IFormFile? MedicalLicenseFile { get; set; }
-
         public int SlotDurationMinutes { get; set; } = 20;     // default is 20 min
-
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string? Description { get; set; }
@@ -44,14 +31,10 @@
         public int? SpecialtyId { get; set; }
         public Specialty? Specialty { get; set; } 
 
-        // (1 Doctor ==> M NotificationRecipient)
-        //public ICollection<NotificationRecipient> NotificationRecipients { get; set; }
-
         // (1 Doctor ==> M TherapySession)
         public ICollection<TherapySession> TherapySessions { get; set; }
 
         // (1 Doctor ==> 1 Clinic)
-        //public ICollection<DoctorClinic> DoctorClincs { get; set; }
         public Clinic Clinic { get; set; }
 
 

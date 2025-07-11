@@ -20,8 +20,8 @@ namespace Graduation_Project.Api.Helpers
                 return null;
 
             return imageUrl.StartsWith("/")
-                ? $"{_configuration["ServerUrl"]}{imageUrl}"
-                : $"{_configuration["ServerUrl"]}/{imageUrl}";
+                ? $"{_configuration["AzureStorageUrl"]}{imageUrl}"
+                : $"{_configuration["AzureStorageUrl"]}/{imageUrl}";
         }
     }
 }

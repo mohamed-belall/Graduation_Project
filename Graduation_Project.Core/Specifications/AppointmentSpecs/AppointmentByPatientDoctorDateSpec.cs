@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace Graduation_Project.Core.Specifications.AppointmentSpecs
 {
+    /*
+        
+        Purpose: Filters appointments by PatientId, DoctorId, and exact AppointmentDate.
+
+        Relation: Inherits from BaseSpecifications<Appointment>. 
+        Likely used to check if a specific patient already has a booking on a given day with a given doctor.
+
+     */
     public class AppointmentByPatientDoctorDateSpec : BaseSpecifications<Appointment>
     {
         public AppointmentByPatientDoctorDateSpec(int patientId, int doctorId, DateOnly date)

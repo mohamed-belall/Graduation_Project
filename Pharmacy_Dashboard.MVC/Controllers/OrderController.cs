@@ -30,8 +30,8 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             //_notificationService = notificationService;
         }
 
-        [HttpGet]
         [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
+        [HttpGet]
         public async Task<IActionResult> Index(OrderPageParams orderPageParams)/*(int pageNumber = 1, int pharmacyId = 1, OrderStatus? orderStatusFilter = null, DateTime? dateFilter = null)*/
         {
             // TODO : get registerd pharmacy Id
@@ -73,6 +73,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
 
         }
 
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpGet]
         public async Task<IActionResult> GetOrder(int id)
         {
@@ -87,6 +88,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
             return View("Card", viewModel);
         }
 
+        [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
         [HttpPost]
         public async Task<IActionResult> UpdateOrder(UpdatedOrderParams updatedOrder)
         {

@@ -34,7 +34,7 @@ namespace Graduation_Project.Repository.Data.Migrations
 
                     b.HasIndex("SecretaryId");
 
-                    b.ToTable("clincSecretaries");
+                    b.ToTable("ClincSecretary");
                 });
 
             modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.Clinic", b =>
@@ -210,7 +210,13 @@ namespace Graduation_Project.Repository.Data.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("clinicId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("clinicId")
+                        .IsUnique();
 
                     b.ToTable("secretaries");
                 });
@@ -348,9 +354,6 @@ namespace Graduation_Project.Repository.Data.Migrations
                     b.Property<double?>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<int?>("SecretaryId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SlotDurationMinutes")
                         .HasColumnType("int");
 
@@ -360,8 +363,6 @@ namespace Graduation_Project.Repository.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActivePolicyId");
-
-                    b.HasIndex("SecretaryId");
 
                     b.HasIndex("SpecialtyId");
 
@@ -1213,13 +1214,13 @@ namespace Graduation_Project.Repository.Data.Migrations
             modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.ClincSecretary", b =>
                 {
                     b.HasOne("Graduation_Project.Core.Models.Clinics.Clinic", "clinic")
-                        .WithMany("clincSecretarys")
+                        .WithMany()
                         .HasForeignKey("ClincId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Graduation_Project.Core.Models.Clinics.Secretary", "secretary")
-                        .WithMany("clincSecretarys")
+                        .WithMany()
                         .HasForeignKey("SecretaryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1285,6 +1286,17 @@ namespace Graduation_Project.Repository.Data.Migrations
                     b.Navigation("governorate");
                 });
 
+            modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.Secretary", b =>
+                {
+                    b.HasOne("Graduation_Project.Core.Models.Clinics.Clinic", "clinic")
+                        .WithOne("Secretary")
+                        .HasForeignKey("Graduation_Project.Core.Models.Clinics.Secretary", "clinicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("clinic");
+                });
+
             modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.TherapySession", b =>
                 {
                     b.HasOne("Graduation_Project.Core.Models.Doctors.Doctor", "Doctor")
@@ -1345,10 +1357,6 @@ namespace Graduation_Project.Repository.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ActivePolicyId")
                         .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Graduation_Project.Core.Models.Clinics.Secretary", null)
-                        .WithMany("doctors")
-                        .HasForeignKey("SecretaryId");
 
                     b.HasOne("Graduation_Project.Core.Models.Doctors.Specialty", "Specialty")
                         .WithMany("Doctors")
@@ -1656,7 +1664,7 @@ namespace Graduation_Project.Repository.Data.Migrations
 
                     b.Navigation("ContactNumbers");
 
-                    b.Navigation("clincSecretarys");
+                    b.Navigation("Secretary");
 
                     b.Navigation("therapySessions");
                 });
@@ -1671,13 +1679,6 @@ namespace Graduation_Project.Repository.Data.Migrations
             modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.Region", b =>
                 {
                     b.Navigation("clinics");
-                });
-
-            modelBuilder.Entity("Graduation_Project.Core.Models.Clinics.Secretary", b =>
-                {
-                    b.Navigation("clincSecretarys");
-
-                    b.Navigation("doctors");
                 });
 
             modelBuilder.Entity("Graduation_Project.Core.Models.Doctors.Doctor", b =>

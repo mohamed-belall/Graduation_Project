@@ -1,1 +1,1 @@
-# Balto.GP.Solution
+# Balto - Platform for Integrated Medical Management 

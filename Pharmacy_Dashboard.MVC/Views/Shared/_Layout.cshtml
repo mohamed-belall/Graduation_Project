@@ -1,7 +1,13 @@
 ﻿@using Graduation_Project.Core.Constants
 @using Microsoft.AspNetCore.Identity
-                        @using System.Security.Claims
+@using System.Security.Claims
 
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var jwtToken = Context.Session.GetString("JWTToken");
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,19 +16,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Pharmacy Dashboard</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- SignalR Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-messaging-compat.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    @* Optional: Link to component-specific CSS if needed *@
-    @* <link rel="stylesheet" href="~/YourProjectName.styles.css" asp-append-version="true" /> *@
-
 </head>
 <body>
     <div class="page-wrapper">
@@ -30,39 +38,35 @@
             <div class="sidebar-header">
                 <a href="#" class="sidebar-logo">
                     <span class="logo-icon-wrapper"><i class="fas fa-prescription-bottle"></i></span>
-                    @* <span class="logo-text">Pharmacy</span> You can add text if needed *@
                 </a>
                 <button class="sidebar-toggle-btn" id="sidebarToggle">
-                    @* Add JS for this later *@
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
             <nav class="sidebar-nav">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        @* Add 'active' class dynamically based on current page *@
-                        <a class="nav-link active" asp-area="" asp-controller="Dashboard" asp-action="Index">
+                        <a class="nav-link @(currentController == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
                             <i class="fas fa-th-large fa-fw me-2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Order" asp-action="Index">
+                        <a class="nav-link @(currentController == "Order" ? "active" : "")" asp-controller="Order" asp-action="Index">
                             <i class="fas fa-shopping-cart fa-fw me-2"></i> Order
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Stock" asp-action="Index">
+                        <a class="nav-link @(currentController == "Stock" ? "active" : "")" asp-controller="Stock" asp-action="Index">
                             <i class="fas fa-boxes fa-fw me-2"></i> Stock
                         </a>
                     </li>
-
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Pharmacist" asp-action="EditProfile">
+                        <a class="nav-link @(currentController == "Pharmacist" && currentAction == "EditProfile" ? "active" : "")" asp-controller="Pharmacist" asp-action="EditProfile">
                             <i class="fas fa-user-edit fa-fw me-2"></i> Edit Profile
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Settings" asp-action="EditProfile">
+                        <a class="nav-link @(currentController == "Account" && currentAction == "ChangePassword" ? "active" : "")" asp-controller="Account" asp-action="ChangePassword">
                             <i class="fas fa-cog fa-fw me-2"></i> Settings
                         </a>
                     </li>
@@ -72,26 +76,23 @@
 
         <div class="main-content-wrapper">
             <header class="header">
-                <div class="header-left d-flex align-items-center gap-2">
-                    <img src="~/assets/images/avatar-placeholder.jpg" alt="Balto Logo" style="width: 40px; height: 40px; object-fit: contain;" class="rounded-circle shadow-sm border border-primary border-2">
-                    <span class="fw-bold fs-4 text-primary" style="letter-spacing: 1px; font-family: 'Cairo', sans-serif;">
-
-
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            
-                           
-                            <div class="welcome-message">
-                                Welcome @User.FindFirstValue(ClaimTypes.Name)
-                            </div>
-                        }
-                    </span>
-                   
-                </div>
+                <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none">
+                    <div class="header-left d-flex align-items-center gap-2">
+                        <i class="fas fa-clinic-medical text-primary fs-4"></i>
+                        <span class="fw-bold fs-4 text-primary" style="letter-spacing: 1px; font-family: 'Cairo', sans-serif;">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <span class="welcome-message">
+                                    Welcome, @User.FindFirstValue(ClaimTypes.Name)
+                                </span>
+                            }
+                        </span>
+                    </div>
+                </a>
 
                 <div class="header-right ms-auto">
                     <div class="nav-item dropdown me-3">
-                        <a class="nav-link position-relative text-secondary" href="#" id="navbarDropdownNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link position-relative text-secondary" href="#" id="navbarDropdownNotifications" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell fs-5"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 3
@@ -99,40 +100,21 @@
                             </span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3 p-0 overflow-hidden" style="min-width: 280px;" aria-labelledby="navbarDropdownNotifications">
-                            <li>
-                                <h6 class="dropdown-header bg-light fw-bold text-dark">Notifications</h6>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center py-2" href="#">
-                                    <i class="fas fa-envelope-open-text text-primary me-2"></i>
-                                    <span>New message from John</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center py-2" href="#">
-                                    <i class="fas fa-user-plus text-success me-2"></i>
-                                    <span>New user registered</span>
-                                </a>
-                            </li>
+                            <li><h6 class="dropdown-header bg-light fw-bold text-dark">Notifications</h6></li>
+                            <li><a class="dropdown-item d-flex align-items-center py-2" href="#"><i class="fas fa-envelope-open-text text-primary me-2"></i><span>New message from John</span></a></li>
+                            <li><a class="dropdown-item d-flex align-items-center py-2" href="#"><i class="fas fa-user-plus text-success me-2"></i><span>New user registered</span></a></li>
                             <li><hr class="dropdown-divider my-1"></li>
-                            <li>
-                                <a class="dropdown-item text-center text-primary py-2 fw-semibold" href="#">
-                                    View All Notifications
-                                </a>
-                            </li>
+                            <li><a class="dropdown-item text-center text-primary py-2 fw-semibold" href="#">View All Notifications</a></li>
                         </ul>
                     </div>
 
                     <div class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-2 rounded user-profile" href="#" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1 px-2 rounded user-profile" href="#" id="navbarDropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="position-relative">
-                                <img src="~/assets/images/avatar-placeholder.jpg"
-                                     alt="User Avatar"
-                                     class="rounded-circle border border-2 border-primary shadow-sm"
-                                     style="width: 45px; height: 45px; object-fit: cover;">
+                                <img src="~/assets/images/avatar-placeholder.jpg" alt="User Avatar" class="rounded-circle border border-2 border-primary shadow-sm" style="width: 45px; height: 45px; object-fit: cover;">
                             </div>
                             <div class="d-none d-md-block text-start">
-                                <span class="fw-semibold text-dark">Mohamed Belal <i class="fas fa-chevron-down fa-xs ms-1 text-muted"></i></span><br />
+                                <span class="fw-semibold text-dark">@User.FindFirstValue(ClaimTypes.Name)<i class="fas fa-chevron-down fa-xs ms-1 text-muted"></i></span><br />
                                 <small class="text-muted">Admin</small>
                             </div>
                         </a>
@@ -143,34 +125,126 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center py-2" asp-controller="Pharmacist" asp-action="EditProfile">
+                                <a class="dropdown-item d-flex align-items-center py-2" asp-controller="Account" asp-action="ChangePassword">
                                     <i class="fas fa-cog fa-fw me-2 text-warning"></i> Settings
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" asp-action="SignOut" asp-controller="Account">
+                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" asp-controller="Account" asp-action="SignOut">
                                     <i class="fas fa-sign-out-alt fa-fw me-2"></i> Logout
                                 </a>
                             </li>
                         </ul>
                     </div>
-
                 </div>
             </header>
 
             <main class="content-area p-4">
                 @RenderBody()
             </main>
-
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+<style>
+
+    .sidebar .nav-link {
+        transition: all 0.3s ease-in-out;
+        border-radius: 8px;
+    }
+
+        .sidebar .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff !important;
+            font-weight: 500;
+            transform: translateX(5px); /* حركة بسيطة */
+        }
+
+        .sidebar .nav-link:hover {
+            color: #0d6efd;
+        }
+
+</style>
+
+<script>
+    // Store notifications in a list
+    let notificationCount = 3; // Start with existing count
+    const notificationList = document.querySelector('#navbarDropdownNotifications + .dropdown-menu');
+
+    // Add new notification to dropdown
+    function addNotification(iconClass, message) {
+      const item = document.createElement("li");
+      item.innerHTML = `
+        <a class="dropdown-item d-flex align-items-center py-2" href="#">
+          <i class="${iconClass} me-2"></i><span>${message}</span>
+        </a>
+      `;
+      // Insert before divider or "View All" link
+      const divider = notificationList.querySelector('hr');
+      notificationList.insertBefore(item, divider);
+
+      // Update badge
+      notificationCount++;
+      updateBadge(notificationCount);
+    }
+
+    function updateBadge(count) {
+      const badge = document.querySelector('#navbarDropdownNotifications .badge');
+      badge.textContent = count;
+      badge.classList.toggle('d-none', count === 0);
+    }
+
+    // === SignalR Setup ===
+    localStorage.setItem("access_token", "@jwtToken");
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://balto-api.azurewebsites.net/Hubs/NotificationHub", {
+        accessTokenFactory: () => localStorage.getItem("access_token")
+      })
+      .build();
+
+    connection.start().then(() => {
+      console.log("✅ Connected to SignalR");
+    }).catch(err => console.error("❌ SignalR Connection failed:", err));
+
+    connection.on("ReceiveNotification", (message, title) => {
+      console.log(`🔔 SignalR Notification: ${title} - ${message}`);
+      addNotification("fas fa-bell text-warning", `${title}: ${message}`);
+    });
+
+    // === Firebase Setup ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlMrjMW-iH2ZF8OADfwAfN0UA8utZLDw8",
+      authDomain: "balto-95152.firebaseapp.com",
+      projectId: "balto-95152",
+      storageBucket: "balto-95152.appspot.com",
+      messagingSenderId: "68254581360",
+      appId: "1:68254581360:web:0500fe50bfeae3db0f6ab5"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    messaging.onMessage(payload => {
+      console.log("📲 FCM Foreground:", payload);
+      const title = payload.notification?.title || "New Notification";
+      const body = payload.notification?.body || "You have a new message";
+      addNotification("fas fa-bell text-info", `${title}: ${body}`);
+    });
+
+    // Optional: Reset counter when user opens the dropdown
+    document.getElementById('navbarDropdownNotifications').addEventListener('click', () => {
+      // Uncomment the next two lines to reset count on open
+      // notificationCount = 0;
+      // updateBadge(notificationCount);
+    });
+</script>
