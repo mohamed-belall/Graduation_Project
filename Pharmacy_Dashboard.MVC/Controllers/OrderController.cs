@@ -20,14 +20,14 @@ namespace Pharmacy_Dashboard.MVC.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IPatientService _patientService;
-        //private readonly INotificationService _notificationService;
+        private readonly INotificationService _notificationService;
 
-        public OrderController(IUnitOfWork unitOfWork, IMapper mapper, IPatientService patientService)
+        public OrderController(IUnitOfWork unitOfWork, IMapper mapper, IPatientService patientService, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _patientService = patientService;
-            //_notificationService = notificationService;
+            _notificationService = notificationService;
         }
 
         [Authorize(Roles = nameof(UserRoleType.Pharmacist))]
@@ -103,6 +103,9 @@ namespace Pharmacy_Dashboard.MVC.Controllers
                 order.Status = updatedOrder.OrderStatus;
 
                 order.DeliverDate = updatedOrder.DeliveryDate;
+
+                await _notificationService.SendNotificationAsync(order.Patient.ApplicationUserId, $"Order is Confirmed", "Order Updated");
+
             }
 
             // if status will be delivered ==> Decrease the medicines from stock table 
@@ -127,7 +130,7 @@ namespace Pharmacy_Dashboard.MVC.Controllers
                 // Increase Patient Points
                 await _patientService.UpdatePoints(order.PatientId, Points.CompletedOrder);
                 // push notifications
-                //await _notificationService.SendNotificationAsync(order.Patient.ApplicationUserId, $"New {Points.CompletedAppointment} Points", "New Points");
+                await _notificationService.SendNotificationAsync(order.Patient.ApplicationUserId, $"Order is Confirmed", "Order Updated");
 
             }
 
